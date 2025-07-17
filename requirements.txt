@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+requests
+gradio
+langchain
+langchain-google-genai
+langchain-community # for FileChatMessageHistory
+spacy==3.7.2
+hyperon==0.2.4
+pydantic
+python-dotenv # Good practice for API keys
