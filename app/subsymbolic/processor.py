@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from app.core.context_manager import get_conversation_chain
 from langchain_core.output_parsers import PydanticOutputParser
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,25 @@ Based on this, generate a single, clear question to ask the user. For example, i
 Clarification Question:
 """
 
+def extract_target_disease(user_input, known_diseases):
+    """
+    Returns the disease name if the user is asking about a specific disease, else None.
+    """
+    # Lowercase for matching
+    text = user_input.lower()
+    for disease in known_diseases:
+        # Match "do i have X", "is it X", "could this be X", etc.
+        patterns = [
+            rf"do i have {disease.lower()}",
+            rf"is (this|it) {disease.lower()}",
+            rf"could (this|it) be {disease.lower()}",
+            rf"am i experiencing {disease.lower()}",
+        ]
+        for pat in patterns:
+            if re.search(pat, text):
+                return disease
+    return None
+
 class SubsymbolicProcessor:
     def __init__(self, session_id: str):
         self.session_id = session_id
@@ -108,3 +128,34 @@ class SubsymbolicProcessor:
             "status": "clarification_needed",
             "message": clarification_question.content
         }
+
+    def curate_diagnosis_with_llm(self, extracted_symptoms, diagnosis_results):
+        """
+        Use the LLM to generate a user-friendly, empathetic summary of the diagnosis results.
+        """
+        # Prepare a prompt for the LLM
+        prompt = PromptTemplate(
+            template="""
+You are a medical AI assistant. Given the following extracted symptoms and diagnostic hypotheses (with likelihood and confidence), write a single, confident, user-friendly paragraph summarizing the most likely conditions, their likelihood, and a safety disclaimer. Your answer should be direct and authoritative, based on the diagnostic hypotheses provided by the symbolic AI. Do not list all diseases, just the most relevant ones. Be concise and clear.
+
+Extracted Symptoms: {symptoms}
+Diagnostic Hypotheses: {diagnoses}
+
+Summary:
+""",
+            input_variables=["symptoms", "diagnoses"]
+        )
+
+        # Format the diagnosis results for the LLM
+        diagnoses_str = "\n".join(
+            f"{d['disease']}: likelihood {d['strength']:.2f}, confidence {d['confidence']:.2f}"
+            for d in diagnosis_results
+        )
+        symptoms_str = ", ".join(
+            s["symptom_name"] if isinstance(s, dict) else getattr(s, "symptom_name", str(s))
+            for s in extracted_symptoms
+        )
+
+        full_prompt = prompt.format(symptoms=symptoms_str, diagnoses=diagnoses_str)
+        llm_output = self.conversation_chain.llm.invoke(full_prompt)
+        return llm_output.content.strip()

@@ -34,7 +34,6 @@ async def chat_endpoint(request: DiagnoseRequest):
         return {"response": result["message"], "type": "clarification"}
         
     elif result["status"] == "success":
-        # We have clear symptoms, now run the symbolic reasoner
         structured_symptoms = result["data"]
         patient_id = f"Patient_{session_id}"
 
@@ -42,11 +41,30 @@ async def chat_endpoint(request: DiagnoseRequest):
         metta_engine.reset_patient_state(patient_id)
         metta_engine.add_patient_symptoms(patient_id, structured_symptoms)
 
-        # Run the full diagnosis
-        diagnosis_results = metta_engine.run_diagnosis(patient_id)
+        # List of diseases your system knows about (should match your knowledge base)
+        known_diseases = [
+            "MyocardialInfarction", "Angina", "PulmonaryEmbolism", "GERD", "PanicAttack",
+            "Asthma", "Anxiety", "Costochondritis", "HeartFailure", "Pneumonia", "Pericarditis"
+        ]
+
+        # Try to extract a target disease from the user input
+        from app.subsymbolic.processor import extract_target_disease
+        target_disease = extract_target_disease(user_input, known_diseases)
+
+        if target_disease:
+            # Use backward chaining for the specific disease
+            diagnosis_results = metta_engine.run_backward_diagnosis(patient_id, target_disease)
+        else:
+            # Use forward chaining for general diagnosis
+            diagnosis_results = metta_engine.run_diagnosis(patient_id)
+
+        # Curate the response using the LLM (Gemini via LangChain)
+        curated_response = processor.curate_diagnosis_with_llm(
+            [s.dict() for s in structured_symptoms], diagnosis_results
+        )
 
         return {
-            "response": diagnosis_results,
+            "response": curated_response,
             "extracted_symptoms": [s.dict() for s in structured_symptoms],
             "type": "diagnosis"
         }

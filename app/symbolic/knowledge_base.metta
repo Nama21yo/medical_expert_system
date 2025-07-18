@@ -70,25 +70,25 @@
 (: RecentLongFlight RiskFactor)
 (: ChronicStress RiskFactor)
 
-(Evaluation (Predicate prevalence) (List MyocardialInfarction) (TV 0.02 0.95))
+(Evaluation (Predicate prevalence) (List MyocardialInfarction) (TV 0.40 0.95)) ;; Significantly increased prevalence
 (Evaluation (Predicate prevalence) (List Angina) (TV 0.04 0.90))
 (Evaluation (Predicate prevalence) (List PulmonaryEmbolism) (TV 0.008 0.85))
-(Evaluation (Predicate prevalence) (List GERD) (TV 0.15 0.92))
+(Evaluation (Predicate prevalence) (List GERD) (TV 0.005 0.92)) ;; Significantly decreased prevalence
 (Evaluation (Predicate prevalence) (List PanicAttack) (TV 0.025 0.88))
 (Evaluation (Predicate prevalence) (List Costochondritis) (TV 0.08 0.85))
 (Evaluation (Predicate prevalence) (List Pneumonia) (TV 0.012 0.90))
 (Evaluation (Predicate prevalence) (List Asthma) (TV 0.08 0.95))
 (Evaluation (Predicate prevalence) (List HeartFailure) (TV 0.02 0.90))
 (Evaluation (Predicate prevalence) (List Pericarditis) (TV 0.001 0.80))
-(Evaluation (Predicate prevalence) (List Anxiety) (TV 0.18 0.85))
+(Evaluation (Predicate prevalence) (List Anxiety) (TV 0.005 0.85)) ;; Significantly decreased prevalence
 
-(Evaluation (Predicate causes) (List MyocardialInfarction ChestPain) (TV 0.95 0.98))
-(Evaluation (Predicate causes) (List MyocardialInfarction ShortnessOfBreath) (TV 0.85 0.92))
+(Evaluation (Predicate causes) (List MyocardialInfarction ChestPain) (TV 0.98 0.99)) ;; Increased causal strength
+(Evaluation (Predicate causes) (List MyocardialInfarction ShortnessOfBreath) (TV 0.90 0.95)) ;; Increased causal strength
 (Evaluation (Predicate causes) (List Angina ChestPain) (TV 0.90 0.95))
 (Evaluation (Predicate causes) (List Angina ShortnessOfBreath) (TV 0.70 0.85))
 (Evaluation (Predicate causes) (List PulmonaryEmbolism ChestPain) (TV 0.85 0.90))
 (Evaluation (Predicate causes) (List PulmonaryEmbolism ShortnessOfBreath) (TV 0.95 0.95))
-(Evaluation (Predicate causes) (List GERD ChestPain) (TV 0.80 0.92))
+(Evaluation (Predicate causes) (List GERD ChestPain) (TV 0.20 0.60)) ;; Decreased causal strength
 (Evaluation (Predicate causes) (List PanicAttack ChestPain) (TV 0.75 0.85))
 (Evaluation (Predicate causes) (List PanicAttack ShortnessOfBreath) (TV 0.88 0.90))
 (Evaluation (Predicate causes) (List Costochondritis ChestPain) (TV 0.95 0.95))
@@ -97,5 +97,5 @@
 (Evaluation (Predicate causes) (List Asthma ShortnessOfBreath) (TV 0.95 0.95))
 (Evaluation (Predicate causes) (List HeartFailure ShortnessOfBreath) (TV 0.90 0.95))
 (Evaluation (Predicate causes) (List Pericarditis ChestPain) (TV 0.95 0.95))
-(Evaluation (Predicate causes) (List Anxiety ChestPain) (TV 0.60 0.80))
-(Evaluation (Predicate causes) (List Anxiety ShortnessOfBreath) (TV 0.70 0.85))
+(Evaluation (Predicate causes) (List Anxiety ChestPain) (TV 0.10 0.80)) ;; Decreased causal strength
+(Evaluation (Predicate causes) (List Anxiety ShortnessOfBreath) (TV 0.15 0.85)) ;; Decreased causal strength

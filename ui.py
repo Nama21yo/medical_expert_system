@@ -6,17 +6,17 @@ import uuid
 API_URL = "http://127.0.0.1:8000/chat"
 
 def format_diagnosis(data):
-    """Formats the JSON diagnosis into readable markdown."""
-    if not data["response"]:
-        return "No specific diagnosis could be inferred based on the current information."
-    
-    output = "### Diagnostic Hypotheses\n"
-    output += f"**Extracted Symptoms:** `{[s['symptom_name'] for s in data['extracted_symptoms']]}`\n\n---\n\n"
-    
-    for diag in data["response"]:
+    """Formats the diagnosis into readable markdown or returns the curated string."""
+    # If the response is a string (curated summary), just return it
+    if isinstance(data.get("response"), str):
+        return data["response"]
+
+    # If the response is a list of dicts (old style), format as before
+    output = "Diagnostic Hypotheses\n"
+    for diag in data.get("response", []):
         output += (f"- **Disease:** `{diag['disease']}`\n"
-                   f"  - **Likelihood (Strength):** {float(diag['strength']):.2f}\n"
-                   f"  - **Confidence:** {float(diag['confidence']):.2f}\n")
+                   f"  - Likelihood (Strength): {diag['strength']:.2f}\n"
+                   f"  - Confidence: {diag['confidence']:.2f}\n")
     return output
 
 def chat_function(message, history, session_id):
